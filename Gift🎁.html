@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Match 3 Game</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+  }
+  h1 { margin-bottom: 10px; }
+  .instructions { margin-bottom: 20px; font-size: 16px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    gap: 10px;
+  }
+  .tile {
+    width: 100px;
+    height: 100px;
+    background: #1e1e1e;
+    border: 2px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    cursor: pointer;
+    border-radius: 10px;
+  }
+  .hidden { background: #333; }
+  #message {
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: bold;
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <h1>Tile Match Game</h1>
+  <div class="instructions">Flip tiles and try to find 3 matching ones!</div>
+  <div class="grid" id="grid"></div>
+  <div id="message">🎉 Happy Birthday Apoorva 🎉</div>
+
+<script>
+const symbols = ["🍰","🎁"]; // two objects
+let tiles = [...symbols, ...symbols, ...symbols]; // 6 tiles total
+tiles = tiles.sort(() => Math.random()-0.5);
+
+const grid = document.getElementById("grid");
+let revealed = [];
+let matchedSymbol = null;
+
+tiles.forEach((sym, i)=>{
+  const div = document.createElement("div");
+  div.className = "tile hidden";
+  div.dataset.symbol = sym;
+  div.dataset.index = i;
+  div.addEventListener("click", ()=>flip(div));
+  grid.appendChild(div);
+});
+
+function flip(tile){
+  if(!tile.classList.contains("hidden")) return;
+  tile.classList.remove("hidden");
+  tile.textContent = tile.dataset.symbol;
+  revealed.push(tile);
+
+  // Check for matches
+  if(revealed.length >= 3){
+    const sym = revealed[0].dataset.symbol;
+    if(revealed.every(t=>t.dataset.symbol===sym)){
+      matchedSymbol = sym;
+      document.getElementById("message").style.display="block";
+      confetti();
+    } else {
+      setTimeout(()=>{
+        revealed.forEach(t=>{
+          t.classList.add("hidden");
+          t.textContent="";
+        });
+        revealed=[];
+      },1000);
+    }
+  }
+}
+
+// Simple confetti
+function confetti(){
+  for(let i=0;i<150;i++){
+    const c = document.createElement("div");
+    c.style.position="fixed";
+    c.style.left=Math.random()*100+"vw";
+    c.style.top="-10px";
+    c.style.width="8px";
+    c.style.height="8px";
+    c.style.background=["#ff6b6b","#feca57","#1dd1a1","#54a0ff"][Math.floor(Math.random()*4)];
+    c.style.opacity="0.9";
+    c.style.animation=`fall ${2+Math.random()*3}s linear forwards`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),5000);
+  }
+}
+</script>
+<style>
+@keyframes fall{
+  to{ transform:translateY(110vh) rotate(720deg); opacity:0;}
+}
+</style>
+</body>
+</html>
